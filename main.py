@@ -1,13 +1,8 @@
 import requests
 import json
-from acc import BASE_URL , API_KEY , rules
+from acc import BASE_URL , API_KEY , rules , url
 from sms_send import send_sms
-def get_rates():
-    response = requests.get(BASE_URL + API_KEY)
-    if response.status_code == 200 :
-        return json.loads(response.text)
-    return None
-
+from fixer import get_request
 
 
 def archive(filename,rates):
@@ -46,7 +41,7 @@ def send_mail(timestamp,rates):
 
 
 if __name__ == "__main__":
-    rat=get_rates()
+    rat=get_request(url)
     archive(rat['date'],rat['rates'])
     if rules["notification"]['status']:
         notification_msg = check_notify_rules(rat['rates'])
