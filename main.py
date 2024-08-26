@@ -2,48 +2,29 @@ import requests
 import json
 from acc import BASE_URL , API_KEY , rules , url
 from sms_send import send_sms
-from fixer import get_request
+from fixer import get_rates
 
 
 def archive(filename,rates):
-    with open(f'archive/{filename}.json','w') as f:
+    with open(f'{filename}.json','w') as f:
         f.write(json.dumps(rates))
 
 def check_notify_rules(rates):
     preferred=rules['notification']['preferred']
     msg=''
     for exc in preferred:
-        print(preferred[exc]['min'])
         if float(rates[exc]) <= float(preferred[exc]['min']):
-            msg+=f'{exc} reached min{rates[exc]}'
-            print(msg)
+            msg+=f'به کمترین مقدار خود رسید'
             
-        if float(rates[exc]) >= float(preferred[exc]['min']):
-            msg+=f'{exc} reached max{rates[exc]}'
+        if float(rates[exc]) >= float(preferred[exc]['max']):
+            msg+=f'به بیشترین مقدار تعیین شده رسیده است'
 
 
     return msg
-
-def send_notification(msg):
-    send_sms(msg)
-
-
-
-def send_mail(timestamp,rates):
-    subject = f'{timestamp} rates'
-    if rules['preferred'] is not None:
-        tmp = dict()
-        for exc in rules['preferred']:
-            tmp[exc]=rates[exc]
-        rates = tmp
-    text = json.dumps(rates)
-
-
-
 if __name__ == "__main__":
-    rat=get_request(url)
+    rat=get_rates(url)
     archive(rat['date'],rat['rates'])
     if rules["notification"]['status']:
         notification_msg = check_notify_rules(rat['rates'])
         if notification_msg:
-            send_notification(notification_msg)
+            print(notification_msg)

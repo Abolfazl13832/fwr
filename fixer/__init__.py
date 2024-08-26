@@ -1,3 +1,2 @@
-from fixer.request import get_request
-
-__all__ = ["get_request"]
+from fixer.request import get_rates
+__all__ = ["get_rates"]
